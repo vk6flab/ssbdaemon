@@ -1,0 +1,65 @@
+#!/bin/bash
+
+voice_dir="/home/onno/audio/Karen"
+cwdaemon="/usr/sbin/cwdaemon"
+logfile="/home/onno/audio/ssbdaemon.log"
+
+request="cwdaemon:II: request: "
+abort="cwdaemon:II: requested aborting of message"
+
+play_cmd="play"
+
+function make_sound() {
+	if [ -f "$1" ]
+	then
+		echo "$(date --rfc-3339=sec): $1" >> "${logfile}"
+		"${play_cmd}" -q "$1" -t alsa
+	fi
+}
+
+function speak(){
+	if [ -f "${1}.aiff" ]
+	then
+		make_sound "${1}.aiff"
+	else
+		while read char
+		do
+			case "${char}" in
+				'.')
+					char="decimal"
+					;;
+				'/')
+					char="stroke"
+					;;
+				'?')
+					char="query"
+					;;
+			esac
+			make_sound "${char}.aiff"
+		done < <(echo -n "$@" | sed 's|.|&\n|g')
+	fi
+}
+
+function extract_requests(){
+	while read alpha
+	do
+		if [[ "${alpha}" =~ "${request}" ]]
+		then
+			message=$(echo -n "${alpha}" | cut -d'"' -f2)
+			speak "${message}"
+		fi
+	done
+}
+
+function extract_aborts(){
+	while read bravo
+	do
+		if [[ "${bravo}" =~ "${abort}" ]]
+		then
+			killall -q -9 "${play_cmd}" 2> /dev/null
+		fi
+	done
+}
+
+cd "${voice_dir}"
+${cwdaemon} --cwdevice=null --nofork -i --system=n 2> /dev/null | tee -p >(extract_aborts) | extract_requests
