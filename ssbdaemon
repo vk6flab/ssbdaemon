@@ -4,6 +4,8 @@ voice_dir="/home/onno/audio/Karen"
 cwdaemon="/usr/sbin/cwdaemon"
 logfile="/home/onno/audio/ssbdaemon.log"
 
+audio_extension="aiff"
+
 request="cwdaemon:II: request: "
 abort="cwdaemon:II: requested aborting of message"
 
@@ -18,9 +20,9 @@ function make_sound() {
 }
 
 function speak(){
-	if [ -f "${1}.aiff" ]
+	if [ -f "${1}.${audio_extension}" ]
 	then
-		make_sound "${1}.aiff"
+		make_sound "${1}.${audio_extension}"
 	else
 		while read char
 		do
@@ -35,7 +37,7 @@ function speak(){
 					char="query"
 					;;
 			esac
-			make_sound "${char}.aiff"
+			make_sound "${char}.${audio_extension}"
 		done < <(echo -n "$@" | sed 's|.|&\n|g')
 	fi
 }
