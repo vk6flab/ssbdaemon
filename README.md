@@ -63,9 +63,8 @@ The following characters are translated:
 * `/` = stroke
 * `?` = query
 
-You can record the audio yourself and process it using a tool like audacity. For
-my station You can use the MacOS `say` command and output the text to aiff like 
-this:
+You can record the audio yourself and process it using a tool like audacity. You
+can use the MacOS `say` command and output the text to aiff like this:
 
     say "Hello World" -o "Hello World.aiff"
 
@@ -93,8 +92,9 @@ The following known issues exist:
 Credits
 ---
 
-ssbdaemon was written by Onno Benschop <cq@vk6flab.com> after discovering a
-distinct lack of Linux based voice-keyers that integrate with logging software.
+ssbdaemon was written by Onno (VK6FLAB) Benschop <cq@vk6flab.com> after 
+discovering a distinct lack of Linux based voice-keyers that integrate with
+logging software.
 
 This script is a companion to Episode 333 of the "Foundations of Amateur Radio"
 podcast titled: "How to run an SSB contest without using your voice...".
