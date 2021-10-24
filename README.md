@@ -17,17 +17,17 @@ Installation
 ---
 
 This wrapper is a simple bash script. Launch it on a terminal and it will stay
-in the foreground, mostly silent - except for spurious output from the kill
-command.
+in the foreground until you terminate it with Ctrl-C.
 
 It requires access to `cwdaemon`, which on a Debian system is in /sbin/
 
 It requires access to `play`, to actually play an audio file, but it's simple to
 use any audio play command.
 
-The script will fail if cwdaemon is already running as a daemon in the
-background. It uses the default cwdaemon port. The default arguments sent to
-cwdaemon are: `--cwdevice=null --nofork -i --system=n`
+The script will fail if cwdaemon is already running.
+
+It uses the default cwdaemon port. The default arguments sent to cwdaemon are:
+`--cwdevice=null --nofork -i --system=n`
 
 If you supply any parameters, you must also supply `--nofork` and `-i`.
 
@@ -42,7 +42,8 @@ Audio
 
 This voice-keyer requires a directory full of audio files. The files need to be
 named in the same way that your logging tool sends commands to cwdaemon. Using
-TLF, output of callsigns is in UPPER-case, but this might not be universal.
+TLF, output of callsigns is in UPPER-case, but this might not be universal and
+both UPPER-case and lower-case versions of the individual word files are usable.
 
 The script doesn't care which audio format you use, as long as you can play it
 from a command-line. The default extension is "aiff", but it's trivial to
@@ -50,7 +51,8 @@ change.
 
 For every message that your logger sends to cwdaemon, the script checks to see
 if there is a file with that name. If your logger sends out "VK6FLAB", the
-script will attempt to play "VK6FLAB.aiff"
+script will attempt to play "VK6FLAB.aiff" - note that the file name must match
+the case for a message file to play.
 
 If that file doesn't exist, the script splits the message into individual
 characters, if VK6FLAB.aiff doesn't exist, the script looks for: V.aiff, K.aiff,
@@ -59,7 +61,7 @@ characters, if VK6FLAB.aiff doesn't exist, the script looks for: V.aiff, K.aiff,
 The file "A.aiff" needs to contain the audio for the phonetic word "Alpha",
 "B.aiff" needs to contain "Bravo", etc.
 
-The script checks for a filename match in the following order:
+The script checks for a file name match in the following order:
 * "VK6FLAB.aiff"
 * "V.aiff"
 * "v.aiff"
