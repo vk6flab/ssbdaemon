@@ -26,14 +26,15 @@ It requires access to `play`, to actually play an audio file, but it's simple to
 use any audio play command.
 
 The script will fail if cwdaemon is already running as a daemon in the
-background. It uses the default cwdaemon port, but you can update the parameters
-on the last line of the script.
+background. It uses the default cwdaemon port. The default arguments sent to
+cwdaemon are: `--cwdevice=null --nofork -i --system=n`
+
+If you supply any parameters, you must also supply `--nofork` and `-i`.
 
 In my shack the audio follows the same path as is used for WSJT-X. The radio is
 set to Digital VOX and sending audio will automatically set the radio to
 transmit. You should be able to use an alternative TX mode if needed, either by
-setting up your logger, or by enabling radio control in cwdaemon, again on the
-last line of the script.
+setting up your logger, or by enabling radio control in cwdaemon.
 
 
 Audio
@@ -58,6 +59,14 @@ characters, if VK6FLAB.aiff doesn't exist, the script looks for: V.aiff, K.aiff,
 The file "A.aiff" needs to contain the audio for the phonetic word "Alpha",
 "B.aiff" needs to contain "Bravo", etc.
 
+The script checks for a filename match in the following order:
+* "VK6FLAB.aiff"
+* "V.aiff"
+* "v.aiff"
+* "K.aiff"
+* "k.aiff"
+* ...
+
 The following characters are translated:
 * `.` = decimal
 * `/` = stroke
@@ -81,7 +90,6 @@ Bugs
 The following known issues exist:
 
 * Only two of the features of cwdaemon are handled, request and abort.
-* You cannot pass any arguments to cwdaemon.
 * WPM has no effect on the audio output.
 * There is no volume control.
 

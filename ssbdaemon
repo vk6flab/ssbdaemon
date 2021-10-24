@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ $# -eq 0 ]
+then
+	$0 --cwdevice=null --nofork -i --system=n
+	exit
+fi
+
 voice_dir="/home/onno/audio/Karen"
 cwdaemon="/usr/sbin/cwdaemon"
 logfile="/home/onno/audio/ssbdaemon.log"
@@ -38,6 +44,12 @@ function speak(){
 			if [ -f "${char}.${audio_extension}" ]
 			then
 				fileList+="${char}.${audio_extension} "
+			elif [ -f "${char^^}.${audio_extension}" ]
+			then
+				fileList+="${char^^}.${audio_extension} "
+			elif [ -f "${char,,}.${audio_extension}" ]
+			then
+				fileList+="${char,,}.${audio_extension} "
 			fi
 		done < <(echo -n "$@" | sed 's|.|&\n|g')
 		make_sound ${fileList}
@@ -60,4 +72,4 @@ function extract_aborts(){
 }
 
 cd "${voice_dir}"
-${cwdaemon} --cwdevice=null --nofork -i --system=n 2> /dev/null | tee >(extract_aborts) | extract_requests
+${cwdaemon} "$@" 2> /dev/null | tee >(extract_aborts) | extract_requests
