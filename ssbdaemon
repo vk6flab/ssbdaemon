@@ -12,11 +12,8 @@ abort="cwdaemon:II: requested aborting of message"
 play_cmd="play"
 
 function make_sound() {
-	if [ -f "$1" ]
-	then
-		echo "$(date --rfc-3339=sec): $1" >> "${logfile}"
-		"${play_cmd}" -q "$1" -t alsa
-	fi
+	echo "$(date --rfc-3339=sec): $1" >> "${logfile}"
+	"${play_cmd}" -q "$@" -t alsa
 }
 
 function speak(){
@@ -24,6 +21,7 @@ function speak(){
 	then
 		make_sound "${1}.${audio_extension}"
 	else
+		fileList=""
 		while read char
 		do
 			case "${char}" in
@@ -37,31 +35,29 @@ function speak(){
 					char="query"
 					;;
 			esac
-			make_sound "${char}.${audio_extension}"
+			if [ -f "${char}.${audio_extension}" ]
+			then
+				fileList+="${char}.${audio_extension} "
+			fi
 		done < <(echo -n "$@" | sed 's|.|&\n|g')
+		make_sound ${fileList}
 	fi
 }
 
 function extract_requests(){
-	while read alpha
+	while read line
 	do
-		if [[ "${alpha}" =~ "${request}" ]]
-		then
-			message=$(echo -n "${alpha}" | cut -d'"' -f2)
-			speak "${message}"
-		fi
-	done
+		message=$(echo -n "${line}" | cut -d'"' -f2)
+		speak "${message}"
+	done < <(stdbuf -oL grep -F "${request}")
 }
 
 function extract_aborts(){
-	while read bravo
+	while read line
 	do
-		if [[ "${bravo}" =~ "${abort}" ]]
-		then
-			killall -q -9 "${play_cmd}" 2> /dev/null
-		fi
-	done
+		killall -s SIGINT -q "${play_cmd}"
+	done < <(stdbuf -oL grep -F "${abort}")
 }
 
 cd "${voice_dir}"
-${cwdaemon} --cwdevice=null --nofork -i --system=n 2> /dev/null | tee -p >(extract_aborts) | extract_requests
+${cwdaemon} --cwdevice=null --nofork -i --system=n 2> /dev/null | tee >(extract_aborts) | extract_requests

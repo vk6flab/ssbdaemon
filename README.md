@@ -5,9 +5,9 @@ README for ssbdaemon
 into `play` commands allowing you to use a cwdaemon capable logger to generate
 voice-keyer audio.
 
-It does this by launching cwdaemon in debug mode, without connecting to a radio,
-sound card. The debug information from cwdaemon is captured by the wrapper and
-converted into play commands.
+It does this by launching cwdaemon in debug mode, without connecting to a radio
+or sound card. The debug information from cwdaemon is captured by the wrapper
+and converted into play commands.
 
 The ESC interrupt transmit is also captured and used to kill the currently
 running play command.
@@ -48,8 +48,8 @@ from a command-line. The default extension is "aiff", but it's trivial to
 change.
 
 For every message that your logger sends to cwdaemon, the script checks to see
-if there is a file with that name. If your logger sends out "VK6FLAB", the script
-will attempt to play "VK6FLAB.aiff"
+if there is a file with that name. If your logger sends out "VK6FLAB", the
+script will attempt to play "VK6FLAB.aiff"
 
 If that file doesn't exist, the script splits the message into individual
 characters, if VK6FLAB.aiff doesn't exist, the script looks for: V.aiff, K.aiff,
@@ -81,12 +81,9 @@ Bugs
 The following known issues exist:
 
 * Only two of the features of cwdaemon are handled, request and abort.
-* The kill only stops the currently playing audio file, but not a sequence.
-* The kill is noisy and echos to stdout.
 * You cannot pass any arguments to cwdaemon.
 * WPM has no effect on the audio output.
 * There is no volume control.
-* Each output line from cwdaemon is processed twice.
 
 
 Credits
