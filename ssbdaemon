@@ -40,6 +40,9 @@ function speak(){
 				'?')
 					char="query"
 					;;
+				' ')
+					char="space"
+					;;
 			esac
 			if [ -f "${char}.${audio_extension}" ]
 			then
