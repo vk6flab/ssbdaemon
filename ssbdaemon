@@ -14,6 +14,7 @@ audio_extension="aiff"
 
 request="cwdaemon:II: request: "
 abort="cwdaemon:II: requested aborting of message"
+tune="cwdaemon:II: requested tuning"
 
 play_cmd="play"
 
@@ -74,5 +75,12 @@ function extract_aborts(){
 	done < <(stdbuf -oL grep -F "${abort}")
 }
 
+function extract_tuning(){
+	while read line
+	do
+		speak tune
+	done < <(stdbuf -oL grep -F "${tune}")
+}
+
 cd "${voice_dir}"
-${cwdaemon} "$@" 2> /dev/null | tee >(extract_aborts) | extract_requests
+${cwdaemon} "$@" 2> /dev/null | tee >(extract_aborts) | tee >(extract_tuning) | extract_requests

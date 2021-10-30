@@ -79,6 +79,11 @@ can use the MacOS `say` command and output the text to aiff like this:
 
     say "Hello World" -o "Hello World.aiff"
 
+To create a file capable of tuning your radio, name it "tune.aiff". You can use 
+the following command to generate a 10 second file with 1 kHz tone:
+
+    sox -V -r 22050 -n -b 16 -c 2 tune-test.aiff synth 10 sin 1000 vol -1dB
+
 **Tip**: Name the files for their phonetic content and make a symbolic link to
 play them. For example:
 
@@ -91,7 +96,7 @@ Bugs
 
 The following known issues exist:
 
-* Only two of the features of cwdaemon are handled, request and abort.
+* Only three of the features of cwdaemon are handled, request, tune and abort.
 * WPM has no effect on the audio output.
 * There is no volume control.
 
