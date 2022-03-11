@@ -55,7 +55,7 @@ function speak(){
 			then
 				fileList+="${char,,}.${audio_extension} "
 			fi
-		done < <(echo -n "$@" | sed 's|.|&\n|g')
+		done < <(echo -n "$@" | grep -o .)
 		make_sound ${fileList}
 	fi
 }
