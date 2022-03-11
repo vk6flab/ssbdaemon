@@ -1,21 +1,26 @@
 #!/bin/bash
 
+# Pass all the parameters to cwdaemon, use these defaults if none specified
 if [ $# -eq 0 ]
 then
 	$0 --cwdevice=null --nofork -i --system=n
 	exit
 fi
 
-voice_dir="/home/onno/audio/Karen"
+# Update these to reflect your environment
+voice_dir="~/audio/Karen"
 cwdaemon="/usr/sbin/cwdaemon"
-logfile="/home/onno/audio/ssbdaemon.log"
+logfile="~/audio/ssbdaemon.log"
 
+# The default audio file extension for the MacOS say output.
 audio_extension="aiff"
 
+# Detection strings from the cwdaemon debug output
 request="cwdaemon:II: request: "
 abort="cwdaemon:II: requested aborting of message"
 tune="cwdaemon:II: requested tuning"
 
+# Abstract the play command, since this isn't universal
 play_cmd="play"
 
 function make_sound() {
@@ -23,6 +28,7 @@ function make_sound() {
 	"${play_cmd}" -q "$@" -t alsa
 }
 
+# Match text to file names
 function speak(){
 	if [ -f "${1}.${audio_extension}" ]
 	then
@@ -60,6 +66,7 @@ function speak(){
 	fi
 }
 
+# Process the message text
 function extract_requests(){
 	while read line
 	do
@@ -68,6 +75,7 @@ function extract_requests(){
 	done < <(stdbuf -oL grep -F "${request}")
 }
 
+# If you send an abort signal, the audio stops
 function extract_aborts(){
 	while read line
 	do
@@ -75,6 +83,7 @@ function extract_aborts(){
 	done < <(stdbuf -oL grep -F "${abort}")
 }
 
+# Play a 1 kHz audio tone that allows your tuner to recognise a carrier
 function extract_tuning(){
 	while read line
 	do
@@ -83,4 +92,6 @@ function extract_tuning(){
 }
 
 cd "${voice_dir}"
+
+# Split output into several streams so we can abort whilst audio is playing
 ${cwdaemon} "$@" 2> /dev/null | tee >(extract_aborts) | tee >(extract_tuning) | extract_requests
