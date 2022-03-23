@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/bash -x
+# (C) 2022, Onno Benschop, VK6FLAB <cq@vk6flab.com>
 
 # Pass all the parameters to cwdaemon, use these defaults if none specified
 if [ $# -eq 0 ]
@@ -8,9 +9,9 @@ then
 fi
 
 # Update these to reflect your environment
-voice_dir="~/audio/Karen"
-cwdaemon="/usr/sbin/cwdaemon"
-logfile="~/audio/ssbdaemon.log"
+voice_dir=~/audio/Karen
+cwdaemon=/usr/sbin/cwdaemon
+logfile=~/audio/ssbdaemon.log
 
 # The default audio file extension for the MacOS say output.
 audio_extension="aiff"
@@ -24,45 +25,67 @@ tune="cwdaemon:II: requested tuning"
 play_cmd="play"
 
 function make_sound() {
-	echo "$(date --rfc-3339=sec): $1" >> "${logfile}"
+	echo "$(date --rfc-3339=sec): $@" >> "${logfile}"
 	"${play_cmd}" -q "$@" -t alsa
 }
 
 # Match text to file names
 function speak(){
-	if [ -f "${1}.${audio_extension}" ]
+	phrase="$@.${audio_extension}"
+	if [ -f "${phrase}" ]
 	then
-		make_sound "${1}.${audio_extension}"
+		# An audio file for this entire phrase exists
+		make_sound "${phrase}"
 	else
-		fileList=""
-		while read char
+		fileList=()
+		# Iterate across each word, saying the ones we have, spelling the rest
+		while [ $# -gt 0 ]
 		do
-			case "${char}" in
-				'.')
-					char="decimal"
-					;;
-				'/')
-					char="stroke"
-					;;
-				'?')
-					char="query"
-					;;
-				' ')
-					char="space"
-					;;
-			esac
-			if [ -f "${char}.${audio_extension}" ]
+			if [ -f "$1.${audio_extension}" ]
 			then
-				fileList+="${char}.${audio_extension} "
-			elif [ -f "${char^^}.${audio_extension}" ]
-			then
-				fileList+="${char^^}.${audio_extension} "
-			elif [ -f "${char,,}.${audio_extension}" ]
-			then
-				fileList+="${char,,}.${audio_extension} "
+				# An audio file for this word exists
+				fileList+=("$1.${audio_extension}")
+			else
+				# We use phonetics instead
+				while read char
+				do
+					case "${char}" in
+						'.')
+							char="decimal"
+							;;
+						'/')
+							char="stroke"
+							;;
+						'?')
+							char="query"
+							;;
+						' ')
+							char="space"
+							;;
+					esac
+					if [ -f "${char}.${audio_extension}" ]
+					then
+						fileList+=("${char}.${audio_extension}")
+					elif [ -f "${char^^}.${audio_extension}" ]
+					then
+						fileList+=("${char^^}.${audio_extension}")
+					elif [ -f "${char,,}.${audio_extension}" ]
+					then
+						fileList+=("${char,,}.${audio_extension}")
+					fi
+				done < <(echo -n "$1" | grep -o .) # One letter per line
 			fi
-		done < <(echo -n "$@" | grep -o .)
-		make_sound ${fileList}
+			# The audio space between words
+			fileList+=("space.${audio_extension}")
+
+			# Process the next word
+			shift
+		done
+		# We don't need to end our phrase with a space
+		unset fileList[-1]
+
+		# Play the whole message together
+		make_sound "${fileList[@]/#/}"
 	fi
 }
 
@@ -71,7 +94,7 @@ function extract_requests(){
 	while read line
 	do
 		message=$(echo -n "${line}" | cut -d'"' -f2)
-		speak "${message}"
+		speak ${message}
 	done < <(stdbuf -oL grep -F "${request}")
 }
 
@@ -94,4 +117,4 @@ function extract_tuning(){
 cd "${voice_dir}"
 
 # Split output into several streams so we can abort whilst audio is playing
-${cwdaemon} "$@" 2> /dev/null | tee >(extract_aborts) | tee >(extract_tuning) | extract_requests
+"${cwdaemon}" "$@" 2> /dev/null | tee >(extract_aborts) | tee >(extract_tuning) | extract_requests

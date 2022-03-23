@@ -55,14 +55,16 @@ script will attempt to play "VK6FLAB.aiff" - note that the file name must match
 the case for a message file to play.
 
 If that file doesn't exist, the script splits the message into individual
-characters, if VK6FLAB.aiff doesn't exist, the script looks for: V.aiff, K.aiff,
+words, if VK6FLAB.aiff doesn't exist, the script looks for: V.aiff, K.aiff,
 6.aiff, F.aiff, L.aiff, A.aiff and B.aiff and plays those in order.
 
 The file "A.aiff" needs to contain the audio for the phonetic word "Alpha",
 "B.aiff" needs to contain "Bravo", etc.
 
 The script checks for a file name match in the following order:
+* "VK6FLAB 5929.aiff"
 * "VK6FLAB.aiff"
+* "5928.aiff"
 * "V.aiff"
 * "v.aiff"
 * "K.aiff"
@@ -73,22 +75,23 @@ The following characters are translated:
 * `.` = decimal
 * `/` = stroke
 * `?` = query
+* ` ` = space
 
-You can record the audio yourself and process it using a tool like audacity. You
+You can record the audio yourself and process it using a tool like `audacity`. You
 can use the MacOS `say` command and output the text to aiff like this:
 
-    say "Hello World" -o "Hello World.aiff"
+    `say "Hello World" -o "Hello World.aiff"`
 
 To create a file capable of tuning your radio, name it "tune.aiff". You can use 
 the following command to generate a 10 second file with 1 kHz tone:
 
-    sox -V -r 22050 -n -b 16 -c 2 tune-test.aiff synth 10 sin 1000 vol -1dB
+    `sox -V -r 22050 -n -b 16 -c 2 tune-test.aiff synth 10 sin 1000 vol -1dB`
 
 **Tip**: Name the files for their phonetic content and make a symbolic link to
 play them. For example:
 
-    ln -s "Alpha.aiff" A.aiff
-    ln -s "CQ Contest, Victor Kilo 6 Foxtrot Lima Alpha Bravo.aiff" "CQ.aiff"
+    `ln -s "Alpha.aiff" A.aiff`
+    `ln -s "CQ Contest, Victor Kilo 6 Foxtrot Lima Alpha Bravo.aiff" "CQ.aiff"`
 
 
 Bugs
@@ -96,7 +99,7 @@ Bugs
 
 The following known issues exist:
 
-* Only three of the features of cwdaemon are handled, request, tune and abort.
+* Only three of the features of cwdaemon are handled: request, tune and abort.
 * WPM has no effect on the audio output.
 * There is no volume control.
 
